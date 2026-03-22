@@ -53,10 +53,17 @@ interface ProfileFormState {
     password: string;
 }
 
-export function SettingsDialog() {
+export function SettingsDialog({
+    defaultTab = "general",
+    triggerButton
+}: {
+    defaultTab?: string;
+    triggerButton?: React.ReactNode;
+} = {}) {
     const { data: session } = useSession();
     const { t, language, setLanguage } = useLanguage();
     const [open, setOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState(defaultTab);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const [clearingPractice, setClearingPractice] = useState(false);
     const [clearingError, setClearingError] = useState(false);
@@ -100,8 +107,9 @@ export function SettingsDialog() {
         if (open) {
             fetchSettings();
             fetchProfile();
+            setActiveTab(defaultTab);
         }
-    }, [open]);
+    }, [open, defaultTab]);
 
     const fetchSettings = async () => {
         setLoading(true);
@@ -506,10 +514,12 @@ export function SettingsDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                    <Settings className="h-5 w-5" />
-                    <span className="sr-only">{t.settings?.title || "Settings"}</span>
-                </Button>
+                {triggerButton || (
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                        <Settings className="h-5 w-5" />
+                        <span className="sr-only">{t.settings?.title || "Settings"}</span>
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent ref={dialogContentRef} className="w-[calc(100vw-2rem)] sm:max-w-[900px] max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
@@ -519,8 +529,8 @@ export function SettingsDialog() {
                     </DialogDescription>
                 </DialogHeader>
 
-                <Tabs defaultValue="general" className="w-full">
-                    <TabsList className={`grid w-full grid-cols-4 ${(session?.user as any)?.role === 'admin' ? 'sm:grid-cols-7' : 'sm:grid-cols-4'} gap-1 h-auto`}>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className={`grid w-full grid-cols-4 sm:grid-cols-6 gap-1 h-auto`}>
                         <TabsTrigger value="general" className="px-2 sm:px-3">
                             <Languages className="h-4 w-4 sm:mr-2" />
                             <span className="hidden sm:inline">{t.settings?.tabs?.general || "General"}</span>
@@ -529,8 +539,6 @@ export function SettingsDialog() {
                             <User className="h-4 w-4 sm:mr-2" />
                             <span className="hidden sm:inline">{t.settings?.tabs?.account || "Account"}</span>
                         </TabsTrigger>
-                        {(session?.user as any)?.role === 'admin' && (
-                            <>
                                 <TabsTrigger value="ai" className="px-2 sm:px-3">
                                     <Bot className="h-4 w-4 sm:mr-2" />
                                     <span className="hidden sm:inline">{t.settings?.tabs?.ai || "AI Provider"}</span>
@@ -539,11 +547,11 @@ export function SettingsDialog() {
                                     <MessageSquareText className="h-4 w-4 sm:mr-2" />
                                     <span className="hidden sm:inline">{t.settings?.tabs?.prompts || "Prompts"}</span>
                                 </TabsTrigger>
+                        {(session?.user as any)?.role === 'admin' && (
                                 <TabsTrigger value="admin" className="px-2 sm:px-3">
                                     <Shield className="h-4 w-4 sm:mr-2" />
                                     <span className="hidden sm:inline">{t.settings?.tabs?.admin || "User Management"}</span>
                                 </TabsTrigger>
-                            </>
                         )}
                         <TabsTrigger value="danger" className="px-2 sm:px-3">
                             <AlertTriangle className="h-4 w-4 sm:mr-2" />

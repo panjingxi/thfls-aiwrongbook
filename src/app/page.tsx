@@ -14,7 +14,7 @@ import { AnalyzeResponse, Notebook, AppConfig } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { processImageFile } from "@/lib/image-utils";
-import { Upload, BookOpen, Tags, LogOut, BarChart3, Sparkles, GraduationCap } from "lucide-react";
+import { Upload, BookOpen, Tags, LogOut, BarChart3, Sparkles, GraduationCap, Bot } from "lucide-react";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { BroadcastNotification } from "@/components/broadcast-notification";
 import { signOut } from "next-auth/react";
@@ -467,7 +467,7 @@ function HomeContent() {
                 )}
 
                 {/* Action Center */}
-                <div className={initialNotebookId ? "flex justify-center mb-6" : "grid grid-cols-2 md:grid-cols-4 gap-4"}>
+                <div className={initialNotebookId ? "flex justify-center mb-6" : "grid grid-cols-2 lg:grid-cols-5 gap-3"}>
                     <Button
                         size="lg"
                         className={`h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border-0 ${initialNotebookId ? "w-full max-w-md" : ""} ${
@@ -490,10 +490,10 @@ function HomeContent() {
                                 <Button
                                     variant="outline"
                                     size="lg"
-                                    className="w-full h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border hover:border-primary/50 hover:bg-accent/50"
+                                    className="w-full h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border hover:border-primary/50 hover:bg-accent/50 group"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <BookOpen className="h-5 w-5" />
+                                        <BookOpen className="h-5 w-5 text-purple-500 group-hover:scale-110 transition-transform" />
                                         <span>{t.app.viewNotebook}</span>
                                     </div>
                                 </Button>
@@ -503,10 +503,10 @@ function HomeContent() {
                                 <Button
                                     variant="outline"
                                     size="lg"
-                                    className="w-full h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border hover:border-primary/50 hover:bg-accent/50"
+                                    className="w-full h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border hover:border-primary/50 hover:bg-accent/50 group"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <Tags className="h-5 w-5" />
+                                        <Tags className="h-5 w-5 text-green-500 group-hover:scale-110 transition-transform" />
                                         <span>{t.app?.tags || 'Tags'}</span>
                                     </div>
                                 </Button>
@@ -516,14 +516,30 @@ function HomeContent() {
                                 <Button
                                     variant="outline"
                                     size="lg"
-                                    className="w-full h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border hover:border-primary/50 hover:bg-accent/50"
+                                    className="w-full h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border hover:border-primary/50 hover:bg-accent/50 group"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <BarChart3 className="h-5 w-5" />
+                                        <BarChart3 className="h-5 w-5 text-blue-500 group-hover:scale-110 transition-transform" />
                                         <span>{t.app?.stats || 'Stats'}</span>
                                     </div>
                                 </Button>
                             </Link>
+
+                            <SettingsDialog
+                                defaultTab="ai"
+                                triggerButton={
+                                    <Button
+                                        variant="outline"
+                                        size="lg"
+                                        className="w-full h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border hover:border-primary/50 hover:bg-accent/50 group"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <Bot className="h-5 w-5 text-orange-500 group-hover:scale-110 transition-transform" />
+                                            <span>AI设置</span>
+                                        </div>
+                                    </Button>
+                                }
+                            />
                         </>
                     )}
                 </div>
