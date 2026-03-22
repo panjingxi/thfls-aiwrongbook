@@ -36,9 +36,24 @@ function HomeContent() {
 
     const [config, setConfig] = useState<AppConfig | null>(null);
 
-    // Cropper state
     const [croppingImage, setCroppingImage] = useState<string | null>(null);
     const [isCropperOpen, setIsCropperOpen] = useState(false);
+
+    // 随机励志标语
+    const slogans = [
+        "把每一次的错题，化作攀登卓越的阶梯。",
+        "行千里者半九十，知错能改善莫大焉。",
+        "书山有路勤为径，学海无涯苦作舟。",
+        "宝剑锋从磨砺出，梅花香自苦寒来。",
+        "每一次纠错，都是向卓越迈进的一大步。",
+        "厚积薄发，行稳致远。",
+        "千淘万漉虽辛苦，吹尽狂沙始到金。"
+    ];
+    const [currentSlogan, setCurrentSlogan] = useState("");
+
+    useEffect(() => {
+        setCurrentSlogan(slogans[Math.floor(Math.random() * slogans.length)]);
+    }, []);
 
     // Timeout Config
     const aiTimeout = config?.timeouts?.analyze || 180000;
@@ -402,6 +417,19 @@ function HomeContent() {
                         </Button>
                     </div>
                 </div>
+
+                {/* 励志标语展示 */}
+                {currentSlogan && (
+                    <div className="flex w-full justify-center py-2 apple-fade-in stagger-3">
+                        <div className="relative group flex items-center gap-3 px-8 py-3 rounded-full bg-gradient-to-r from-[#e60000]/[0.02] via-[#e60000]/[0.08] to-[#e60000]/[0.02] border border-[#e60000]/10 overflow-hidden text-center transition-all duration-300 hover:border-[#e60000]/30 shadow-[0_2px_10px_rgba(230,0,0,0.02)] hover:shadow-[0_4px_15px_rgba(230,0,0,0.08)]">
+                            <Sparkles className="w-4 h-4 text-[#e60000]/50" />
+                            <p className="text-[14px] md:text-[15px] font-serif font-medium text-[#c8102e] dark:text-[#ff4d4d] tracking-[0.2em] relative z-10">
+                                {currentSlogan}
+                            </p>
+                            <Sparkles className="w-4 h-4 text-[#e60000]/50" />
+                        </div>
+                    </div>
+                )}
 
                 {/* Action Center */}
                 <div className={initialNotebookId ? "flex justify-center mb-6" : "grid grid-cols-2 md:grid-cols-4 gap-4"}>
