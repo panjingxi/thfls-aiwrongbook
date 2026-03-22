@@ -307,9 +307,9 @@ function HomeContent() {
             />
 
             <div className="container mx-auto p-4 space-y-6 pb-20">
-                {/* ===== 天外品牌横幅 ===== */}
-                <div className="relative overflow-hidden rounded-3xl thfls-banner apple-fade-in">
-                    {/* 背景装饰点阵（模拟天外 logo 风格） */}
+                {/* ===== 天外品牌横幅 (天外蓝 x 中国红) ===== */}
+                <div className="relative overflow-hidden rounded-3xl thfls-banner apple-fade-in group hover:shadow-lg transition-all duration-500">
+                    {/* 背景装饰点阵 */}
                     <div className="absolute inset-0 pointer-events-none">
                         <div className="absolute top-0 right-0 w-64 h-full opacity-10"
                             style={{
@@ -319,10 +319,20 @@ function HomeContent() {
                         />
                     </div>
 
-                    <div className="relative flex items-center justify-between px-6 py-5">
+                    {/* 中国风: 祥云红绸背景 */}
+                    <div className="absolute inset-x-0 bottom-0 h-24 opacity-[0.25] pointer-events-none transition-opacity duration-500 group-hover:opacity-[0.35]"
+                        style={{
+                            backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'40\' viewBox=\'0 0 100 40\'%3E%3Cpath d=\'M50 20 C20 40, 20 0, 50 20 C80 40, 80 0, 50 20 Z\' fill=\'none\' stroke=\'%23FF3333\' stroke-width=\'1\'/%3E%3C/svg%3E")',
+                            backgroundSize: '100px 40px',
+                            backgroundRepeat: 'repeat-x',
+                            backgroundPosition: 'bottom'
+                        }}
+                    />
+
+                    <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 py-5 gap-4">
                         {/* 左侧：Logo + 校名 */}
-                        <div className="flex items-center gap-4">
-                            <div className="relative h-14 w-14 flex-shrink-0 bg-white rounded-2xl p-1.5 shadow-md overflow-hidden">
+                        <div className="flex items-center gap-4 z-10">
+                            <div className="relative h-14 w-14 flex-shrink-0 bg-white rounded-2xl p-1.5 shadow-[0_2px_15px_rgba(230,0,0,0.15)] overflow-hidden ring-2 ring-[#e60000]/20">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src="/thfls-logo.png"
@@ -331,30 +341,45 @@ function HomeContent() {
                                 />
                             </div>
                             <div>
-                                <p className="text-[11px] font-medium text-white/60 tracking-widest uppercase">
+                                <p className="text-[11px] font-medium text-white/70 tracking-widest uppercase flex items-center gap-1.5">
                                     Guangzhou Tianhe Foreign Language School
+                                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#ff3b30] shadow-[0_0_6px_#ff3b30] animate-pulse"></span>
                                 </p>
-                                <h1 className="text-lg font-bold text-white leading-tight tracking-tight">
+                                <h1 className="text-lg font-bold text-white leading-tight tracking-tight mt-0.5" style={{ fontFamily: 'var(--font-sans)' }}>
                                     广州市天河外国语学校
                                 </h1>
                                 <div className="flex items-center gap-1.5 mt-1">
-                                    <Sparkles className="h-3 w-3 text-[#c9973b]" />
-                                    <span className="text-xs text-white/80 font-medium">
+                                    <Sparkles className="h-3 w-3 text-[#ff3333]" />
+                                    <span className="text-xs text-white/90 font-medium">
                                         AI 智能错题本 · 助力天外学子卓越成长
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* 右侧：校训徽章 */}
-                        <div className="hidden sm:flex flex-col items-center gap-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/20">
-                            <GraduationCap className="h-5 w-5 text-[#c9973b]" />
-                            <p className="text-[10px] text-white/70 font-medium text-center leading-tight">
-                                智慧脑 · 世界眼
-                            </p>
-                            <p className="text-[10px] text-white/60 text-center leading-tight">
-                                未来英才
-                            </p>
+                        {/* 右侧：中国印章 & 校训徽章 */}
+                        <div className="flex items-center gap-4 sm:gap-6 self-end sm:self-auto z-10 w-full sm:w-auto justify-end">
+                            {/* 中国特色：金石印章 */}
+                            <div className="opacity-95 flex transform rotate-6 transition-transform hover:-rotate-3 duration-300">
+                                <div className="border border-[#e60000] p-[2px] rounded-sm bg-[#e60000]/10 backdrop-blur-sm shadow-[0_0_12px_rgba(230,0,0,0.3)]">
+                                    <div className="border-[1.5px] border-[#e60000] p-[1px] flex items-center justify-center w-10 h-10 bg-[#e60000]/5">
+                                        <span className="text-[#ff3b30] text-[13px] font-bold font-serif leading-none tracking-[3px] flex items-center justify-center" style={{ writingMode: 'vertical-rl', textOrientation: 'upright', letterSpacing: '2px' }}>
+                                            天外
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 校训徽章 */}
+                            <div className="hidden sm:flex flex-col items-center gap-1 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md rounded-xl px-4 py-2 border border-[#ff3b30]/30 shadow-[0_4px_12px_rgba(0,0,0,0.1),inset_0_0_8px_rgba(230,0,0,0.15)] transition-colors hover:border-[#ff3b30]/50">
+                                <GraduationCap className="h-5 w-5 text-[#ff3b30] drop-shadow-[0_0_4px_rgba(255,59,48,0.5)]" />
+                                <p className="text-[10px] text-white font-medium text-center leading-tight tracking-widest">
+                                    智慧脑·世界眼
+                                </p>
+                                <p className="text-[9px] text-white/70 text-center leading-tight">
+                                    未来英才
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -382,7 +407,11 @@ function HomeContent() {
                 <div className={initialNotebookId ? "flex justify-center mb-6" : "grid grid-cols-2 md:grid-cols-4 gap-4"}>
                     <Button
                         size="lg"
-                        className={`h-auto py-4 text-base shadow-sm hover:shadow-md transition-all ${initialNotebookId ? "w-full max-w-md" : ""}`}
+                        className={`h-auto py-4 text-base shadow-sm hover:shadow-md transition-all border-0 ${initialNotebookId ? "w-full max-w-md" : ""} ${
+                            step === "upload" 
+                                ? "bg-gradient-to-br from-[#e60000] to-[#b30000] hover:from-[#ff1a1a] hover:to-[#cc0000] text-white shadow-[0_4px_14px_rgba(230,0,0,0.25)]" 
+                                : ""
+                        }`}
                         variant={step === "upload" ? "default" : "secondary"}
                         onClick={() => setStep("upload")}
                     >

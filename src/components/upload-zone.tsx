@@ -181,19 +181,19 @@ export function UploadZone({ onImageSelect, isAnalyzing }: UploadZoneProps) {
         <div className="space-y-5 apple-fade-in stagger-2">
             <div
                 {...getRootProps()}
-                className={`rounded-2xl border-0 cursor-pointer transition-all duration-200 bg-[#f5f5f7] dark:bg-[#1c1c1e] hover:bg-[#e8e8ed] dark:hover:bg-[#2c2c2e] ${
+                className={`relative overflow-hidden rounded-2xl border-0 cursor-pointer transition-all duration-200 bg-[#f5f5f7] dark:bg-[#1c1c1e] hover:bg-[#e8e8ed] dark:hover:bg-[#2c2c2e] group ${
                     isDragActive 
-                        ? "bg-[#0071e3]/5 ring-2 ring-[#0071e3] shadow-[0_8px_24px_rgba(0,0,0,0.12)]" 
+                        ? "bg-[#e60000]/5 ring-2 ring-[#e60000] shadow-[0_8px_24px_rgba(230,0,0,0.12)]" 
                         : "shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
                 }`}
             >
-                <div className="flex flex-col items-center justify-center py-16 md:py-20 space-y-5 text-center px-6 min-h-[280px]">
+                <div className="flex flex-col items-center justify-center py-16 md:py-20 space-y-5 text-center px-6 min-h-[280px] relative z-10">
                     <input {...getInputProps()} />
-                    <div className="w-16 h-16 bg-white dark:bg-[#2c2c2e] rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                    <div className="w-16 h-16 bg-white dark:bg-[#2c2c2e] rounded-2xl shadow-[0_4px_12px_rgba(230,0,0,0.08)] flex items-center justify-center group-hover:shadow-[0_6px_16px_rgba(230,0,0,0.15)] transition-shadow duration-300">
                         {isAnalyzing ? (
-                            <Loader2 className="h-8 w-8 text-[#0071e3] animate-spin" />
+                            <Loader2 className="h-8 w-8 text-[#e60000] animate-spin" />
                         ) : (
-                            <UploadCloud className="h-8 w-8 text-[#86868b]" />
+                            <UploadCloud className="h-8 w-8 text-[#e60000]/80 group-hover:text-[#e60000] transition-colors duration-300" />
                         )}
                     </div>
                     <div className="space-y-2">
