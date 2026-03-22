@@ -13,7 +13,7 @@ import { AnalyzeResponse, Notebook, AppConfig } from "@/types/api";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { processImageFile } from "@/lib/image-utils";
-import { Upload, BookOpen, Tags, LogOut, BarChart3 } from "lucide-react";
+import { Upload, BookOpen, Tags, LogOut, BarChart3, Sparkles, GraduationCap } from "lucide-react";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { BroadcastNotification } from "@/components/broadcast-notification";
 import { signOut } from "next-auth/react";
@@ -306,7 +306,59 @@ function HomeContent() {
                 message={getProgressMessage()}
             />
 
-            <div className="container mx-auto p-4 space-y-8 pb-20">
+            <div className="container mx-auto p-4 space-y-6 pb-20">
+                {/* ===== 天外品牌横幅 ===== */}
+                <div className="relative overflow-hidden rounded-3xl thfls-banner apple-fade-in">
+                    {/* 背景装饰点阵（模拟天外 logo 风格） */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-0 right-0 w-64 h-full opacity-10"
+                            style={{
+                                backgroundImage: 'radial-gradient(circle, #ffffff 1.5px, transparent 1.5px)',
+                                backgroundSize: '14px 14px',
+                            }}
+                        />
+                    </div>
+
+                    <div className="relative flex items-center justify-between px-6 py-5">
+                        {/* 左侧：Logo + 校名 */}
+                        <div className="flex items-center gap-4">
+                            <div className="relative h-14 w-14 flex-shrink-0 bg-white rounded-2xl p-1.5 shadow-md overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src="/thfls-logo.png"
+                                    alt="广州市天河外国语学校"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-[11px] font-medium text-white/60 tracking-widest uppercase">
+                                    Guangzhou Tianhe Foreign Language School
+                                </p>
+                                <h1 className="text-lg font-bold text-white leading-tight tracking-tight">
+                                    广州市天河外国语学校
+                                </h1>
+                                <div className="flex items-center gap-1.5 mt-1">
+                                    <Sparkles className="h-3 w-3 text-[#c9973b]" />
+                                    <span className="text-xs text-white/80 font-medium">
+                                        AI 智能错题本 · 助力天外学子卓越成长
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 右侧：校训徽章 */}
+                        <div className="hidden sm:flex flex-col items-center gap-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/20">
+                            <GraduationCap className="h-5 w-5 text-[#c9973b]" />
+                            <p className="text-[10px] text-white/70 font-medium text-center leading-tight">
+                                智慧脑 · 世界眼
+                            </p>
+                            <p className="text-[10px] text-white/60 text-center leading-tight">
+                                未来英才
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Header Section */}
                 <div className="flex justify-between items-start gap-4">
                     <UserWelcome />

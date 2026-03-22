@@ -178,39 +178,42 @@ export function UploadZone({ onImageSelect, isAnalyzing }: UploadZoneProps) {
         }
     };
     return (
-        <div className="space-y-4">
-            <Card
+        <div className="space-y-5 apple-fade-in stagger-2">
+            <div
                 {...getRootProps()}
-                className={`border-2 border-dashed cursor-pointer transition-colors hover:border-primary/50 ${isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25"
-                    }`}
+                className={`rounded-2xl border-0 cursor-pointer transition-all duration-200 bg-[#f5f5f7] dark:bg-[#1c1c1e] hover:bg-[#e8e8ed] dark:hover:bg-[#2c2c2e] ${
+                    isDragActive 
+                        ? "bg-[#0071e3]/5 ring-2 ring-[#0071e3] shadow-[0_8px_24px_rgba(0,0,0,0.12)]" 
+                        : "shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                }`}
             >
-                <CardContent className="flex flex-col items-center justify-center py-12 space-y-4 text-center min-h-[300px]">
+                <div className="flex flex-col items-center justify-center py-16 md:py-20 space-y-5 text-center px-6 min-h-[280px]">
                     <input {...getInputProps()} />
-                    <div className="p-4 bg-muted rounded-full">
+                    <div className="w-16 h-16 bg-white dark:bg-[#2c2c2e] rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center">
                         {isAnalyzing ? (
-                            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                            <Loader2 className="h-8 w-8 text-[#0071e3] animate-spin" />
                         ) : (
-                            <UploadCloud className="h-10 w-10 text-muted-foreground" />
+                            <UploadCloud className="h-8 w-8 text-[#86868b]" />
                         )}
                     </div>
-                    <div className="space-y-1">
-                        <h3 className="font-semibold text-lg">
+                    <div className="space-y-2">
+                        <h3 className="font-semibold text-xl tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7]">
                             {isAnalyzing ? t.app.analyzing : t.upload.analyze}
                         </h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-[#86868b] max-w-xs mx-auto">
                             {isAnalyzing ? t.app.analyzing : t.app.dragDrop}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-2">
+                        <p className="text-xs text-[#86868b]/70 mt-3">
                             {t.upload.support}
                         </p>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
             {/* 屏幕截图按钮 - 只在客户端渲染 */}
             {isScreenshotSupported() && (
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-3">
                     <Button
-                        variant="outline"
+                        variant="secondary"
                         onClick={handleScreenshot}
                         disabled={isAnalyzing || isScreenshotting}
                         className="flex items-center gap-2"
@@ -222,7 +225,7 @@ export function UploadZone({ onImageSelect, isAnalyzing }: UploadZoneProps) {
                         )}
                         {isScreenshotting ? t.common.pleaseWait : t.upload.screenshot}
                     </Button>
-                    <p className="text-xs text-muted-foreground text-center">
+                    <p className="text-xs text-[#86868b] text-center">
                         {t.upload.screenshotDesc}
                     </p>
                 </div>
