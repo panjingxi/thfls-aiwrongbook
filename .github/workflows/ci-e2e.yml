@@ -111,6 +111,7 @@ jobs:
     timeout-minutes: 60
     env:
       DATABASE_URL: "file:./e2e.db"
+      DATABASE_URL_UNPOOLED: "file:./e2e.db"
       NEXTAUTH_SECRET: "ci-secret-value-123456"
       NEXTAUTH_URL: "http://127.0.0.1:3000"
       
