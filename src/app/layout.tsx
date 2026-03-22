@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "AI智能错题本",
-  description: "一个专门为高中生打造的 AI 智能错题本：拍照识别、知识点分析、举一反三智能训练，助你高效复习提分！",
+  description: "专为广州市天河外国语学校 (THFLS) 学子打造的 AI 智能错题账本：开启“智慧脑”，拓宽“世界眼”，助力天外“和雅君子”成就卓越学术未来。",
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

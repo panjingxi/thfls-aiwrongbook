@@ -343,7 +343,7 @@ export const translations = {
                 title: "About",
                 version: "Version",
                 github: "GitHub Repository",
-                desc: "智能错题本 —— 属于你的 AI 学习神器",
+                desc: "THFLS 智能错题账本 —— 天外人的 AI 智慧大脑",
                 releaseNotes: "Release Notes",
                 feedback: "Feedback",
                 copyright: "© 2025 JingxiPan. All rights reserved.",
@@ -615,7 +615,7 @@ export const translations = {
         },
         app: {
             title: "智能错题本",
-            subtitle: "拍照上传，AI 自动解析，帮你攻克每一道难题！",
+            subtitle: "开启“智慧脑”，拓宽“世界眼”：天外学子的 AI 提分利器。",
             dragDrop: "拖拽图片到此处，或点击浏览",
             analyzing: "AI 正在分析...",
             compressing: "正在压缩图片...",
@@ -695,7 +695,7 @@ export const translations = {
         },
         notebook: {
             title: "我的错题本",
-            subtitle: "把错题变成知识点，把失败变成提分的机会。",
+            subtitle: "和而不同，雅而有致。沉淀错题智慧，成就卓越未来。",
             addNew: "添加错题",
             search: "搜索题目或知识点...",
             filter: "筛选",
@@ -767,7 +767,7 @@ export const translations = {
         },
         practice: {
             title: "智能练习",
-            subtitle: "生成同类变式题，彻底搞定知识盲区。",
+            subtitle: "举一反三特训，助每一位 THer 攻克学术难关。",
             generate: "生成练习题",
             generating: "AI 正在出题...",
             regenerate: "重新生成",
