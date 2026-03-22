@@ -3,7 +3,7 @@ import { AIService, ParsedQuestion, DifficultyLevel, AIConfig } from "./types";
 import { jsonrepair } from "jsonrepair";
 import { generateAnalyzePrompt, generateSimilarQuestionPrompt } from './prompts';
 import { getAppConfig } from '../config';
-import { validateParsedQuestion, safeParseParsedQuestion } from './schema';
+import { validateParsedQuestion, safeParseParsedQuestion, safeParseParsedQuestionBatch } from './schema';
 import { getMathTagsFromDB, getTagsFromDB } from './tag-service';
 import { createLogger } from '../logger';
 
@@ -124,6 +124,43 @@ export class OpenAIProvider implements AIService {
         }
     }
 
+    private parseBatchResponse(text: string): ParsedQuestion[] {
+        logger.debug({ textLength: text.length }, 'Parsing AI batch response');
+        
+        // Remove markdown codeblock formatting if present
+        let jsonStr = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const firstBracket = jsonStr.indexOf('[');
+        const lastBracket = jsonStr.lastIndexOf(']');
+        if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+            jsonStr = jsonStr.substring(firstBracket, lastBracket + 1);
+        }
+
+        try {
+            const rawData = JSON.parse(jsonStr);
+            const validation = safeParseParsedQuestionBatch(rawData);
+            if (validation.success) {
+                return validation.data;
+            } else {
+                logger.warn({ validationError: validation.error.format() }, 'Batch schema validation warning');
+                if (Array.isArray(rawData)) {
+                    const validSubjects = ["数学", "物理", "化学", "生物", "英语", "语文", "历史", "地理", "政治", "其他"];
+                    return rawData.map(item => ({
+                        questionText: item.questionText || '',
+                        answerText: item.answerText || '',
+                        analysis: item.analysis || '',
+                        subject: validSubjects.includes(item.subject) ? item.subject : '其他',
+                        knowledgePoints: Array.isArray(item.knowledgePoints) ? item.knowledgePoints : [],
+                        requiresImage: !!item.requiresImage
+                    }));
+                }
+                throw new Error("Batch response is not an array");
+            }
+        } catch (e) {
+            logger.error({ error: e instanceof Error ? e.message : String(e), textSample: text.substring(0, 500) }, 'Failed to parse batch JSON');
+            throw new Error("Invalid AI response: Not a valid JSON array");
+        }
+    }
+
     async analyzeImage(imageBase64: string, mimeType: string = "image/jpeg", language: 'zh' | 'en' = 'zh', grade?: 7 | 8 | 9 | 10 | 11 | 12 | null, subject?: string | null): Promise<ParsedQuestion> {
         const config = getAppConfig();
 
@@ -228,6 +265,65 @@ export class OpenAIProvider implements AIService {
                 error: error instanceof Error ? error.message : String(error),
                 stack: error instanceof Error ? error.stack : undefined
             });
+            this.handleError(error);
+            throw error;
+        }
+    }
+
+    async analyzeImageBatch(imageBase64: string, mimeType: string = "image/jpeg", language: 'zh' | 'en' = 'zh', grade?: 7 | 8 | 9 | 10 | 11 | 12 | null, subject?: string | null): Promise<ParsedQuestion[]> {
+        const config = getAppConfig();
+        const { generateBatchAnalyzePrompt } = await import('./prompts');
+
+        const prefetchedMathTags = (subject === '数学' || !subject) ? await getMathTagsFromDB(grade || null) : [];
+        const prefetchedPhysicsTags = (subject === '物理' || !subject) ? await getTagsFromDB('physics') : [];
+        const prefetchedChemistryTags = (subject === '化学' || !subject) ? await getTagsFromDB('chemistry') : [];
+        const prefetchedBiologyTags = (subject === '生物' || !subject) ? await getTagsFromDB('biology') : [];
+        const prefetchedEnglishTags = (subject === '英语' || !subject) ? await getTagsFromDB('english') : [];
+
+        const systemPrompt = generateBatchAnalyzePrompt(language, grade, subject, {
+            customTemplate: config.prompts?.analyze,
+            prefetchedMathTags,
+            prefetchedPhysicsTags,
+            prefetchedChemistryTags,
+            prefetchedBiologyTags,
+            prefetchedEnglishTags,
+        });
+
+        logger.box('🔍 AI Batch Image Analysis Request', {
+            provider: 'OpenAI',
+            endpoint: `${this.baseURL}/chat/completions`,
+            model: this.model,
+        });
+
+        try {
+            const response = await this.openai.chat.completions.create({
+                model: this.model,
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                type: "image_url",
+                                image_url: { url: `data:${mimeType};base64,${imageBase64}` },
+                            },
+                        ],
+                    },
+                ],
+                max_tokens: 8192,
+            });
+
+            if (!response || !response.choices || response.choices.length === 0) {
+                throw new Error("AI_RESPONSE_ERROR: API returned empty or invalid response");
+            }
+
+            const text = response.choices[0]?.message?.content || "";
+            logger.box('🤖 AI Raw Batch Response', text);
+
+            if (!text) throw new Error("Empty response from AI");
+            return this.parseBatchResponse(text);
+        } catch (error) {
+            logger.box('❌ Error during AI batch analysis', { error });
             this.handleError(error);
             throw error;
         }

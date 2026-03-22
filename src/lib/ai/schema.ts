@@ -40,3 +40,21 @@ export function validateParsedQuestion(data: unknown): ParsedQuestionFromSchema 
 export function safeParseParsedQuestion(data: unknown) {
     return ParsedQuestionSchema.safeParse(data);
 }
+
+/**
+ * Validates and parses a batch of AI response JSON
+ * @param data - Raw JSON data from AI
+ * @returns Validated ParsedQuestion array
+ * @throws ZodError if validation fails
+ */
+export function validateParsedQuestionBatch(data: unknown): ParsedQuestionFromSchema[] {
+    return z.array(ParsedQuestionSchema).parse(data);
+}
+
+/**
+ * Safe validation that returns success/error object for a batch
+ * @param data - Raw JSON data from AI
+ */
+export function safeParseParsedQuestionBatch(data: unknown) {
+    return z.array(ParsedQuestionSchema).safeParse(data);
+}

@@ -72,6 +72,40 @@ export const DEFAULT_ANALYZE_TEMPLATE = `【角色与核心任务 (ROLE AND CORE
 
 {{provider_hints}}`;
 
+export const DEFAULT_BATCH_ANALYZE_TEMPLATE = `【角色与核心任务 (ROLE AND CORE TASK)】
+你是一位世界顶尖的、经验丰富的、专业的跨学科考试分析专家（Interdisciplinary Exam Analysis Expert）。你的核心任务是极致准确地分析用户提供的包含**多道独立题目**的考试试卷或练习册图片，将它们拆分为多个独立的题目，并为每一题提供完整、高度结构化且专业的解决方案。
+
+{{language_instruction}}
+
+【核心输出要求 (OUTPUT REQUIREMENTS)】
+你的响应必须是一个包含多个题目分析对象的 JSON 数组格式（不需要写在 Markdown 代码块里，直接返回 JSON 数组即可）。
+你必须输出一个 JSON 数组格式，符合以下结构，数组中的每一个元素代表原图中的一道题目。**严禁**使用 Markdown 的。**严禁**对 LaTeX 公式中的反斜杠进行二次转义（如果是普通字符串可以保留单反斜杠转义）。
+
+[
+  {
+    "subject": "在此处填写学科，必须是以下之一：'数学', '物理', '化学', '生物', '英语', '语文', '历史', '地理', '政治', '其他'",
+    "knowledgePoints": ["知识点1", "知识点2", "知识点3"],
+    "requiresImage": true或false,
+    "questionText": "题目完整文本（支持 Markdown 和 LaTeX 符号）。必须包含对应的选项如果有的话。",
+    "answerText": "正确答案（支持 Markdown 和 LaTeX 符号）。",
+    "analysis": "详细的步骤解析（必须使用简体中文，使用标准的 LaTeX 符号，如 \\\\frac{1}{2} ）"
+  }
+]
+
+【知识点标签列表（KNOWLEDGE POINT LIST）】
+{{knowledge_points_list}}
+
+【标签使用规则 (TAG RULES)】
+- 标签必须与题目实际考查的知识点精准匹配。
+- 每题最多 5 个标签。
+
+【!!! 关键格式与内容约束 (CRITICAL RULES) !!!】
+1. **纯JSON数组**：返回值必须只能是合法的 JSON 数组，包含上述要求的字段。请确保 JSON 结构无误。
+2. **完整拆分**：请提取图片中能清晰识别出的**每一道独立的题目**。不要遗漏任何完整的题目。
+3. **内容完整**：如果包含子问题，请在 questionText 中完整合并列出。如果这道题目高度依赖图片中的图表，requiresImage 设为 true。
+
+{{provider_hints}}`;
+
 export const DEFAULT_SIMILAR_TEMPLATE = `你是一位资深的K12教育题目生成专家，具备跨学科的题目创作能力。你的核心任务是**根据以下原题和知识点，举一反三生成高质量教学题目**，帮助学生巩固知识并拓展解题思路。
 ### 角色定义
 1. **学科全能专家**  
@@ -259,6 +293,48 @@ ${englishTagsString}`;
   }
 
   const template = options?.customTemplate || DEFAULT_ANALYZE_TEMPLATE;
+
+  return replaceVariables(template, {
+    language_instruction: langInstruction,
+    knowledge_points_list: tagsSection,
+    provider_hints: options?.providerHints || ''
+  }).trim();
+}
+
+/**
+ * Generates the batch analyze image prompt (for multi-question documents)
+ * @param language - Target language for analysis ('zh' or 'en')
+ * @param grade - Optional grade level (7-9:初中, 10-12:高中) for cumulative tag filtering
+ * @param subject - Optional subject hint
+ * @param options - Optional customizations
+ */
+export function generateBatchAnalyzePrompt(
+  language: 'zh' | 'en',
+  grade?: 7 | 8 | 9 | 10 | 11 | 12 | null,
+  subject?: string | null,
+  options?: PromptOptions
+): string {
+  // Use same logic as generateAnalyzePrompt but with the BATCH template
+  const langInstruction = language === 'zh'
+    ? "IMPORTANT: For the 'analysis' field, use Simplified Chinese. For 'questionText' and 'answerText', YOU MUST USE THE SAME LANGUAGE AS THE ORIGINAL QUESTION."
+    : "Please ensure all text fields are in English.";
+
+  const mathTagsString = getMathTagsForGrade(grade || null, options?.prefetchedMathTags).map(t => `"${t}"`).join(", ");
+  const physicsTagsString = (options?.prefetchedPhysicsTags || []).map(t => `"${t}"`).join(", ");
+  const chemistryTagsString = (options?.prefetchedChemistryTags || []).map(t => `"${t}"`).join(", ");
+  const biologyTagsString = (options?.prefetchedBiologyTags || []).map(t => `"${t}"`).join(", ");
+  const englishTagsString = (options?.prefetchedEnglishTags || []).map(t => `"${t}"`).join(", ");
+
+  let tagsSection = `各学科标签供参考:\n数学: ${mathTagsString}\n物理: ${physicsTagsString}\n化学: ${chemistryTagsString}\n生物: ${biologyTagsString}`;
+  if (subject) {
+      if (subject === '数学') tagsSection = `**数学标签:**\n${mathTagsString}`;
+      else if (subject === '物理') tagsSection = `**物理标签:**\n${physicsTagsString}`;
+      else if (subject === '化学') tagsSection = `**化学标签:**\n${chemistryTagsString}`;
+      else if (subject === '生物') tagsSection = `**生物标签:**\n${biologyTagsString}`;
+      else if (subject === '英语') tagsSection = `**英语标签:**\n${englishTagsString}`;
+  }
+
+  const template = options?.customTemplate || DEFAULT_BATCH_ANALYZE_TEMPLATE;
 
   return replaceVariables(template, {
     language_instruction: langInstruction,

@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { AIService, ParsedQuestion, DifficultyLevel, AIConfig } from "./types";
 import { generateAnalyzePrompt, generateSimilarQuestionPrompt } from './prompts';
-import { safeParseParsedQuestion } from './schema';
+import { safeParseParsedQuestion, safeParseParsedQuestionBatch } from './schema';
 import { getAppConfig } from '../config';
 import { getMathTagsFromDB, getTagsFromDB } from './tag-service';
 import { createLogger } from '../logger';
@@ -145,6 +145,43 @@ export class GeminiProvider implements AIService {
         }
     }
 
+    private parseBatchResponse(text: string): ParsedQuestion[] {
+        logger.debug({ textLength: text.length }, 'Parsing AI batch response');
+        
+        let jsonStr = text;
+        const firstBracket = text.indexOf('[');
+        const lastBracket = text.lastIndexOf(']');
+        if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+            jsonStr = text.substring(firstBracket, lastBracket + 1);
+        }
+
+        try {
+            const rawData = JSON.parse(jsonStr);
+            const validation = safeParseParsedQuestionBatch(rawData);
+            if (validation.success) {
+                return validation.data;
+            } else {
+                logger.warn({ validationError: validation.error.format() }, 'Batch schema validation warning');
+                // Return best effort mapping if validation fails but it is an array
+                if (Array.isArray(rawData)) {
+                    const validSubjects = ["数学", "物理", "化学", "生物", "英语", "语文", "历史", "地理", "政治", "其他"];
+                    return rawData.map(item => ({
+                        questionText: item.questionText || '',
+                        answerText: item.answerText || '',
+                        analysis: item.analysis || '',
+                        subject: validSubjects.includes(item.subject) ? item.subject : '其他',
+                        knowledgePoints: Array.isArray(item.knowledgePoints) ? item.knowledgePoints : [],
+                        requiresImage: !!item.requiresImage
+                    }));
+                }
+                throw new Error("Batch response is not an array");
+            }
+        } catch (e) {
+            logger.error({ error: e instanceof Error ? e.message : String(e), textSample: text.substring(0, 500) }, 'Failed to parse batch JSON');
+            throw new Error("Invalid AI response: Not a valid JSON array");
+        }
+    }
+
     async analyzeImage(imageBase64: string, mimeType: string = "image/jpeg", language: 'zh' | 'en' = 'zh', grade?: 7 | 8 | 9 | 10 | 11 | 12 | null, subject?: string | null): Promise<ParsedQuestion> {
         const config = getAppConfig();
 
@@ -229,6 +266,51 @@ export class GeminiProvider implements AIService {
                 error: error instanceof Error ? error.message : String(error),
                 stack: error instanceof Error ? error.stack : undefined
             });
+            this.handleError(error);
+            throw error;
+        }
+    }
+
+    async analyzeImageBatch(imageBase64: string, mimeType: string = "image/jpeg", language: 'zh' | 'en' = 'zh', grade?: 7 | 8 | 9 | 10 | 11 | 12 | null, subject?: string | null): Promise<ParsedQuestion[]> {
+        const config = getAppConfig();
+        const { generateBatchAnalyzePrompt } = await import('./prompts');
+
+        const prefetchedMathTags = (subject === '数学' || !subject) ? await getMathTagsFromDB(grade || null) : [];
+        const prefetchedPhysicsTags = (subject === '物理' || !subject) ? await getTagsFromDB('physics') : [];
+        const prefetchedChemistryTags = (subject === '化学' || !subject) ? await getTagsFromDB('chemistry') : [];
+        const prefetchedBiologyTags = (subject === '生物' || !subject) ? await getTagsFromDB('biology') : [];
+        const prefetchedEnglishTags = (subject === '英语' || !subject) ? await getTagsFromDB('english') : [];
+
+        const prompt = generateBatchAnalyzePrompt(language, grade, subject, {
+            customTemplate: config.prompts?.analyze, // We could add a custom tempalte for batch in the future
+            prefetchedMathTags,
+            prefetchedPhysicsTags,
+            prefetchedChemistryTags,
+            prefetchedBiologyTags,
+            prefetchedEnglishTags,
+        });
+
+        logger.box('🔍 AI Batch Image Analysis Request', {
+            provider: 'Gemini',
+            endpoint: `${this.baseUrl}/v1beta/models/${this.modelName}:generateContent`,
+        });
+
+        try {
+            const response = await this.retryOperation(() => this.ai.models.generateContent({
+                model: this.modelName,
+                contents: [
+                    { text: prompt },
+                    { inlineData: { data: imageBase64, mimeType: mimeType } }
+                ]
+            }));
+
+            const text = response.text || '';
+            logger.box('🤖 AI Raw Batch Response', text);
+
+            if (!text) throw new Error("Empty response from AI");
+            return this.parseBatchResponse(text);
+        } catch (error) {
+            logger.box('❌ Error during AI batch analysis', { error });
             this.handleError(error);
             throw error;
         }

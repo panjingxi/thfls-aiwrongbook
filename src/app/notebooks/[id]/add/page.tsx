@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { UploadZone } from "@/components/upload-zone";
 import { CorrectionEditor } from "@/components/correction-editor";
+import { BatchAnalyzer, BatchItem } from "@/components/batch-analyzer";
 import { ImageCropper } from "@/components/image-cropper";
 import { ParsedQuestion } from "@/lib/ai";
 import { apiClient } from "@/lib/api-client";
@@ -20,7 +21,10 @@ export default function AddErrorPage() {
     const params = useParams();
     const router = useRouter();
     const notebookId = params.id as string;
-    const [step, setStep] = useState<"upload" | "review">("upload");
+    const [step, setStep] = useState<"upload" | "review" | "batch">("upload");
+    const [batchImages, setBatchImages] = useState<File[]>([]);
+    const [pendingItems, setPendingItems] = useState<BatchItem[]>([]);
+    const [editingBatchItemId, setEditingBatchItemId] = useState<string | null>(null);
     const [analysisStep, setAnalysisStep] = useState<ProgressStatus>('idle');
     const [progress, setProgress] = useState(0);
     const [parsedData, setParsedData] = useState<ParsedQuestion | null>(null);
@@ -93,10 +97,31 @@ export default function AddErrorPage() {
         };
     }, [analysisStep, safetyTimeout]);
 
-    const onImageSelect = (file: File) => {
-        const imageUrl = URL.createObjectURL(file);
-        setCroppingImage(imageUrl);
-        setIsCropperOpen(true);
+    const onImageSelect = async (file: File) => {
+        if (file.type === 'application/pdf') {
+            try {
+                setAnalysisStep('compressing');
+                const { convertPdfToImages } = await import('@/lib/pdf-utils');
+                const images = await convertPdfToImages(file, 2.0);
+                if (images.length === 0) {
+                    alert('无法从 PDF 提取图片，可能是空文件');
+                    setAnalysisStep('idle');
+                    return;
+                }
+                setBatchImages(images);
+                setPendingItems([]);
+                setStep("batch");
+            } catch (err) {
+                console.error("PDF 处理失败:", err);
+                alert('PDF 处理失败，请重试');
+            } finally {
+                setAnalysisStep('idle');
+            }
+        } else {
+            const imageUrl = URL.createObjectURL(file);
+            setCroppingImage(imageUrl);
+            setIsCropperOpen(true);
+        }
     };
 
     const handleCropComplete = async (croppedBlob: Blob) => {
@@ -252,7 +277,14 @@ export default function AddErrorPage() {
             }
 
             alert(t.common.messages?.saveSuccess || 'Saved!');
-            router.push(`/notebooks/${notebookId}`);
+            
+            if (editingBatchItemId) {
+                setPendingItems(prev => prev.filter(item => item.id !== editingBatchItemId));
+                setEditingBatchItemId(null);
+                setStep("batch");
+            } else {
+                router.push(`/notebooks/${notebookId}`);
+            }
         } catch (error) {
             console.error(error);
             alert(t.common.messages?.saveFailed || 'Save failed');
@@ -301,12 +333,35 @@ export default function AddErrorPage() {
                     <UploadZone onImageSelect={onImageSelect} isAnalyzing={analysisStep !== 'idle'} />
                 )}
 
+                {step === "batch" && (
+                    <BatchAnalyzer 
+                        images={batchImages} 
+                        notebookId={notebookId} 
+                        onCancel={() => setStep("upload")}
+                        pendingItems={pendingItems}
+                        setPendingItems={setPendingItems}
+                        onReviewItem={(item) => {
+                            setParsedData(item.question);
+                            setCurrentImage(item.image);
+                            setEditingBatchItemId(item.id);
+                            setStep("review");
+                        }}
+                    />
+                )}
+
                 {step === "review" && parsedData && currentImage && (
                     <CorrectionEditor
                         initialData={parsedData}
                         imagePreview={currentImage}
                         onSave={handleSave}
-                        onCancel={() => setStep("upload")}
+                        onCancel={() => {
+                            if (editingBatchItemId) {
+                                setEditingBatchItemId(null);
+                                setStep("batch");
+                            } else {
+                                setStep("upload");
+                            }
+                        }}
                         initialSubjectId={notebookId}
                         aiTimeout={aiTimeout}
                     />

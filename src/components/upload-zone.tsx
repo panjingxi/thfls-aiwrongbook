@@ -52,6 +52,7 @@ export function UploadZone({ onImageSelect, isAnalyzing }: UploadZoneProps) {
         onDrop,
         accept: {
             "image/*": [".jpeg", ".jpg", ".png"],
+            "application/pdf": [".pdf"],
         },
         maxFiles: 1,
         disabled: isAnalyzing,
@@ -204,7 +205,7 @@ export function UploadZone({ onImageSelect, isAnalyzing }: UploadZoneProps) {
                             {isAnalyzing ? t.app.analyzing : t.app.dragDrop}
                         </p>
                         <p className="text-xs text-[#86868b]/70 mt-3">
-                            {t.upload.support}
+                            {t.upload.support} (JPG, PNG, PDF)
                         </p>
                     </div>
                 </div>
