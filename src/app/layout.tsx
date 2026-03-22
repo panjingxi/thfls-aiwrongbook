@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "AI智能错题本",
-  description: "基于AI的智能错题管理系统，帮助学生高效整理、分析和复习错题",
+  description: "一个专门为高中生打造的 AI 智能错题本：拍照识别、知识点分析、举一反三智能训练，助你高效复习提分！",
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

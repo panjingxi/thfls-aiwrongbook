@@ -48,7 +48,7 @@ export const translations = {
         },
         app: {
             title: "Smart Error Notebook",
-            subtitle: "AI-powered analysis and intelligent review",
+            subtitle: "Snap a photo, let AI help, and conquer every tough problem!",
             dragDrop: "Drag and drop an image here, or click to browse",
             analyzing: "AI is analyzing...",
             compressing: "Compressing image...",
@@ -128,7 +128,7 @@ export const translations = {
         },
         notebook: {
             title: "My Notebook",
-            subtitle: "Review and master your past mistakes.",
+            subtitle: "Turn mistakes into knowledge and boost your grades.",
             addNew: "Add New Wrong Answer",
             search: "Search questions or tags...",
             filter: "Filter",
@@ -200,7 +200,7 @@ export const translations = {
         },
         practice: {
             title: "Smart Practice",
-            subtitle: "Generate a similar problem to test your understanding.",
+            subtitle: "Master similar questions and crush your knowledge gaps.",
             generate: "Generate Practice Question",
             generating: "Generating AI Question...",
             regenerate: "Regenerate",
@@ -343,7 +343,7 @@ export const translations = {
                 title: "About",
                 version: "Version",
                 github: "GitHub Repository",
-                desc: "Smart Error Notebook - AI-powered learning assistant",
+                desc: "智能错题本 —— 属于你的 AI 学习神器",
                 releaseNotes: "Release Notes",
                 feedback: "Feedback",
                 copyright: "© 2025 JingxiPan. All rights reserved.",
@@ -615,7 +615,7 @@ export const translations = {
         },
         app: {
             title: "智能错题本",
-            subtitle: "AI 驱动的题目分析与智能复习",
+            subtitle: "拍照上传，AI 自动解析，帮你攻克每一道难题！",
             dragDrop: "拖拽图片到此处，或点击浏览",
             analyzing: "AI 正在分析...",
             compressing: "正在压缩图片...",
@@ -695,7 +695,7 @@ export const translations = {
         },
         notebook: {
             title: "我的错题本",
-            subtitle: "温故知新，查漏补缺。",
+            subtitle: "把错题变成知识点，把失败变成提分的机会。",
             addNew: "添加错题",
             search: "搜索题目或知识点...",
             filter: "筛选",
@@ -767,7 +767,7 @@ export const translations = {
         },
         practice: {
             title: "智能练习",
-            subtitle: "生成同类变式题，检测掌握情况。",
+            subtitle: "生成同类变式题，彻底搞定知识盲区。",
             generate: "生成练习题",
             generating: "AI 正在出题...",
             regenerate: "重新生成",
